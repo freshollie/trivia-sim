@@ -10,7 +10,6 @@ from make_game import get_quiz
 
 
 PLAYERS = set()
-SERVER = None
 
 def generate_question_event(question, num, count):
     answers = []
@@ -53,37 +52,34 @@ async def broadcast_event(event):
 
 
 async def game():
-    while True:
-        print("Starting a game")
-        print("Loading a quiz")
-        QUIZ = []
-        while not QUIZ:
-            QUIZ = get_quiz(datetime.now() + timedelta(days=-random.randint(0, 50)))#, url="https://hqbuff.com/game/2018-05-23")
+    print("Starting a game")
+    print("Loading a quiz")
+    QUIZ = []
+    while not QUIZ:
+        QUIZ = get_quiz(datetime.now() + timedelta(days=-random.randint(0, 50)))#, url="https://hqbuff.com/game/2018-05-23")
 
-        print("Waiting for players to connect")
-        # Wait for everyone to connect
-        await asyncio.sleep(3)
+    print("Waiting for players to connect")
+    # Wait for everyone to connect
+    await asyncio.sleep(3)
 
-        quiz_length = len(QUIZ)
-        round_num = 1
-        for question_round in QUIZ:
-            print(f"Round {round_num}")
+    quiz_length = len(QUIZ)
+    round_num = 1
+    for question_round in QUIZ:
+        print(f"Round {round_num}")
 
-            print(question_round["question"])
-            # Provide a question and wait for it to be answered 
-            question_event = generate_question_event(question_round, round_num, quiz_length)
-            await broadcast_event(question_event)
-            await asyncio.sleep(10)
+        print(question_round["question"])
+        # Provide a question and wait for it to be answered 
+        question_event = generate_question_event(question_round, round_num, quiz_length)
+        await broadcast_event(question_event)
+        await asyncio.sleep(10)
 
-            summary_event = generate_round_summary_event(question_round)
-            await broadcast_event(summary_event)
-            await asyncio.sleep(5)
-
-            round_num += 1
-        print("Game finished")
+        summary_event = generate_round_summary_event(question_round)
+        await broadcast_event(summary_event)
         await asyncio.sleep(5)
-    SERVER.close()
-    await SERVER.wait_closed()
+
+        round_num += 1
+    print("Game finished")
+    await asyncio.sleep(5)
 
 def register(player):
     PLAYERS.add(player)
@@ -106,9 +102,13 @@ async def player_connection(websocket, path):
         unregister(websocket)
 
 async def main():
-    global SERVER
-    # Provide a server, and start a game
-    SERVER = await websockets.serve(player_connection, "localhost", 8765)
-    await game()
+    while True:
+        # Provide a server, and start a game
+        server = await websockets.serve(player_connection, "localhost", 8765)
+        await game()
+
+        server.close()
+        await server.wait_closed()
+        await asyncio.sleep(5)
 
 asyncio.get_event_loop().run_until_complete(main())
