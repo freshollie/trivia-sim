@@ -104,7 +104,7 @@ async def player_connection(websocket, path):
 async def main():
     while True:
         # Provide a server, and start a game
-        server = await websockets.serve(player_connection, "localhost", 8765)
+        server = await websockets.serve(player_connection, "0.0.0.0", 8765)
         await game()
 
         server.close()
