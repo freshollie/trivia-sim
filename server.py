@@ -6,7 +6,7 @@ import time
 from datetime import timedelta, datetime
 import websockets
 
-from make_game import get_quiz
+from make_game import get_quiz, START_DATE
 
 
 PLAYERS = set()
@@ -55,8 +55,12 @@ async def game():
     print("Starting a game")
     print("Loading a quiz")
     QUIZ = []
+
+    today = datetime.now()
+    diff = (today - START_DATE).days
+
     while not QUIZ:
-        QUIZ = get_quiz(datetime.now() + timedelta(days=-random.randint(0, 50)))#, url="https://hqbuff.com/game/2018-05-23")
+        QUIZ = await get_quiz(datetime.now() + timedelta(days=-random.randint(0, diff)), num=random.randint(1, 2))
 
     print("Waiting for players to connect")
     # Wait for everyone to connect

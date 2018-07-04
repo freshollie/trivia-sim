@@ -7,8 +7,11 @@ name = "pypi"
 websockets = "*"
 requests = "*"
 "bs4" = "*"
+aiohttp = "*"
 
 [dev-packages]
+mypy = "*"
+pylint = "*"
 
 [requires]
 python_version = "3.6"
