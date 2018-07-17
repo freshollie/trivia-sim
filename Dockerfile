@@ -6,6 +6,6 @@ WORKDIR /hqtrivia-socket-emulator
 COPY Pipfile.lock Pipfile ./
 RUN pipenv install --deploy --system --ignore-pipfile
 
-COPY make_game.py server.py ./
+COPY hqbuff.py server.py ./
 
 ENTRYPOINT ["python3.6", "-u", "/hqtrivia-socket-emulator/server.py"]
