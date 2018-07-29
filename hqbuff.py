@@ -54,7 +54,7 @@ async def get_quiz(date=None, url=None, num=1):
         choices = []
         correct_answer = ""
         for choice_element in choices_list.findAll("li"):
-            choice = choice_element.text.replace("Correct", "").strip()
+            choice = choice_element.text.split("\n")[1].strip()
 
             # The correct answer is highlighted by the correct question class
             if choice_element.get('class', '') == ['questions__correct']:
