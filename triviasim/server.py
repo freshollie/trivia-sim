@@ -1,15 +1,11 @@
 '''
-HQTrivia Server Emulation
-- Oliver Bell 2018
+MIT License
 
-Running this file will create an API and game
-server which mocks/simulates the real HQTrivia.
+Copyright (c) 2018, Oliver Bell <freshollie@gmail.com>
 
-Connecting your analysis tool to this server will enable you
-to be able to test it without waiting for a real game.
-
-Quizes are provided by scraping HQBuff (No permission for this)
+HQTrivia quiz simulator server
 '''
+
 import asyncio
 import json
 import random

@@ -1,3 +1,11 @@
+'''
+MIT License
+
+Copyright (c) 2018, Oliver Bell <freshollie@gmail.com>
+
+HQBuff scraper
+'''
+
 import asyncio
 import datetime
 import json
