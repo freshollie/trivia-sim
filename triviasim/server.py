@@ -20,7 +20,7 @@ from datetime import datetime, timedelta, timezone
 import websockets
 from aiohttp import web
 
-import hqbuff
+from triviasim import hqbuff
 
 SOCKET_PORT = 8765
 GAME_RUNNING = False
@@ -223,6 +223,6 @@ class Server:
             await self._game_server.host_game()
             await self._game_server.close()
 
-
-if __name__ == "__main__":
+def run():
     asyncio.get_event_loop().run_until_complete(Server().run())
+    
