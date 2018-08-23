@@ -10,7 +10,7 @@ aiohttp = "*"
 
 [dev-packages]
 mypy = "*"
-pylint = "*"
+pylint = "<2.0.0"
 
 [requires]
 python_version = "3.6"

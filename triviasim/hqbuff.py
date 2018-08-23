@@ -3,7 +3,7 @@ MIT License
 
 Copyright (c) 2018, Oliver Bell <freshollie@gmail.com>
 
-HQBuff scraper
+HQBuff api interface
 '''
 
 import asyncio
@@ -17,65 +17,48 @@ from bs4 import BeautifulSoup
 # HQBuff started recording quizes here
 START_DATE = datetime.datetime(2018, 5, 9)
 
-async def get_quiz(date=None, url=None, num=1):
+COUNTRY_UK = "uk"
+COUNTRY_US = "us"
+
+_API_ADDR = "https://hqbuff.com/api"
+
+async def get_quiz(date, game_num, country=COUNTRY_US):
     '''
     Fetch a quiz on the given date with the given game number
     from hqbuff
 
     A list of rounds are returned, containing the questions
     choices and answers
-
-    Without a date, the latest quiz is fetched.
-
-    A specific URL can be given for a quiz if desired.
     '''
 
-    if url == None:
-        url = "https://hqbuff.com/"
-        if date:
-            url += f"game/{date.strftime('%Y-%m-%d')}/{num}"
+    url = f"{_API_ADDR}/{country}/{date.strftime('%Y-%m-%d')}"
 
-    print(f"Getting quiz: {url}")
+    print(f"Getting quiz {game_num} from: {url}")
     
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
-            response = await response.text()
-
-    data = BeautifulSoup(response, "html.parser")
-
+            response = await response.json()
+    
     questions = []
 
-    # The questions of the game are broken up into
-    # question divs
-    for game_round in data.findAll("div", class_="question"):
-        
-        # We find the question text in this div
-        question_element = game_round.find("h3", class_="question__text")
-        if not question_element:
-            continue
-
-        # And then find the answers in the div too
-        question = question_element.text.replace("Savage", "").strip()
-        choices_list = game_round.find("ul", class_="questions")
-        if not choices_list:
+    for game in response:
+        if game["game_number"] != game_num:
             continue
         
-        choices = []
-        correct_answer = ""
-        for choice_element in choices_list.findAll("li"):
-            choice = choice_element.text.split("\n")[1].strip()
+        for question in game["questions"]:
+            choices = []
+            answer = ""
 
-            # The correct answer is highlighted by the correct question class
-            if choice_element.get('class', '') == ['questions__correct']:
-                correct_answer = choice
-            
-            choices.append(choice)
-        
-        questions.append({
-            "question": question,
-            "choices": choices,
-            "answer": correct_answer
-        })
+            for choice in question["answers"]:
+                choices.append(choice["text"])
+                if choice["correct"]:
+                    answer = choice["text"]
+
+            questions.append({
+                "question": question["text"],
+                "choices": choices,
+                "answer": answer
+            })
 
     return questions
 
@@ -86,7 +69,7 @@ async def try_get_quiz(date, num):
     returning null if HQBuff was not available
     '''
     try:
-        return await get_quiz(date, num=num)
+        return await get_quiz(date, num)
     except:
         print("Could not get " + date)
         return None
@@ -125,7 +108,7 @@ async def make_db():
         collectors = [] 
         for i in range(10):
             for j in range(2):
-                collectors.append(get_quiz(quiz_date, num=j + 1))
+                collectors.append(get_quiz(quiz_date, j + 1))
             quiz_date += datetime.timedelta(days=1)
 
         for quiz in await asyncio.gather(*collectors):
