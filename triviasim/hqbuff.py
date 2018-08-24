@@ -71,7 +71,7 @@ async def try_get_quiz(date, num):
     try:
         return await get_quiz(date, num)
     except:
-        print("Could not get " + date)
+        print(f"Could not get " + date.strftime('%Y-%m-%d'))
         return None
 
 
